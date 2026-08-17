@@ -1,0 +1,13 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+dist_bak/
+
+# Vite 缓存
+frontend/node_modules/.vite/
+
+# 系统/编辑器
+.DS_Store
+*.log
