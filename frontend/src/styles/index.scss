@@ -27,6 +27,20 @@ a {
   text-decoration: none;
 }
 
+// 分页：当前页指示器（不展示所有页码）
+.page-indicator {
+  margin: 0 4px;
+  font-size: 14px;
+  color: $color-muted;
+  white-space: nowrap;
+  user-select: none;
+
+  strong {
+    color: $color-primary;
+    font-weight: 600;
+  }
+}
+
 h1, h2, h3, h4, h5, h6, p {
   margin: 0;
 }

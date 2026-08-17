@@ -1,6 +1,7 @@
 <template>
   <div ref="viewRef" class="page-container home-view">
-    <div ref="stageRef" class="stage" :style="stageStyle">
+    <div class="stage">
+      <div ref="stageRef" class="stage-inner" :style="stageStyle">
       <h2 class="section-title">最新文章</h2>
 
       <el-row :gutter="40" class="content-row">
@@ -25,12 +26,13 @@
           <sidebar-widgets />
         </el-col>
       </el-row>
+      </div>
 
-      <!-- 分页控件：上一页 / 页码 / 下一页 / 指定页码跳转 -->
+      <!-- 分页控件：钉在容器底部，不随内容缩放移动 -->
       <div class="pagination">
         <el-pagination
           background
-          layout="prev, pager, next, jumper"
+          layout="prev, next, jumper"
           :page-size="pageSize"
           :total="filteredPosts.length"
           :current-page="currentPage"
@@ -38,6 +40,7 @@
           :next-text="'下一页'"
           @current-change="handlePageChange"
         />
+        <span class="page-indicator">第 <strong>{{ currentPage }}</strong> / {{ totalPages }} 页</span>
       </div>
     </div>
   </div>
@@ -75,6 +78,11 @@ const pagedPosts = computed(() => {
   return filteredPosts.value.slice(start, start + pageSize)
 })
 
+// 总页数（仅用于展示「第 X / Y 页」，不渲染全部页码）
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredPosts.value.length / pageSize))
+)
+
 const handlePageChange = page => {
   currentPage.value = page
 }
@@ -87,7 +95,7 @@ watch(filteredPosts, () => {
 // 单屏自适应缩放
 const viewRef = ref(null)
 const stageRef = ref(null)
-const { scale, refit } = useFitScale(viewRef, stageRef)
+const { scale, refit } = useFitScale(viewRef, stageRef, 64)
 const stageStyle = computed(() => ({
   transform: `scale(${scale.value})`,
   transformOrigin: 'top center'
@@ -100,6 +108,7 @@ watch(() => route.query.q, refit)
 
 <style lang="scss" scoped>
 .home-view {
+  position: relative;
   height: calc(100vh - 152px);
   overflow: hidden;
 
@@ -111,6 +120,16 @@ watch(() => route.query.q, refit)
 }
 
 .stage {
+  // 容器：撑满固定高度，承载缩放内容 + 底部固定分页条
+  position: relative;
+  height: 100%;
+
+  @media (max-width: 991px) {
+    height: auto;
+  }
+}
+
+.stage-inner {
   // 自然设计尺寸排版，由 useFitScale 统一等比缩放
 }
 
@@ -143,8 +162,21 @@ watch(() => route.query.q, refit)
 }
 
 .pagination {
+  position: absolute;
+  left: 0;
+  right: calc(100% * 7 / 24);
+  bottom: 8px;
+  z-index: 5;
   display: flex;
   justify-content: center;
-  padding: 20px 0 8px;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 8px;
+  background-color: $color-bg;
+
+  // 移动端没有固定高度，分页回到正常文档流
+  @media (max-width: 991px) {
+    position: static;
+  }
 }
 </style>
